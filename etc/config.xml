@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <rivicore_semantiq>
+            <general>
+                <enabled>0</enabled>
+                <index_products>1</index_products>
+                <index_cms_pages>1</index_cms_pages>
+                <rag_enabled>0</rag_enabled>
+                <index_attributes>name,description</index_attributes>
+                <search_result_size>20</search_result_size>
+            </general>
+            <vector_store>
+                <backend>opensearch</backend>
+                <opensearch_index_name>semantiq_vectors</opensearch_index_name>
+                <chromadb_collection>semantiq</chromadb_collection>
+            </vector_store>
+            <embedding>
+                <provider>openai</provider>
+                <opensearch_ml_dimension>768</opensearch_ml_dimension>
+                <openai_model>text-embedding-3-small</openai_model>
+                <bedrock_model>amazon.titan-embed-text-v2:0</bedrock_model>
+                <ollama_base_url>http://localhost:11434</ollama_base_url>
+                <ollama_model>nomic-embed-text</ollama_model>
+                <anthropic_model>claude-haiku-4-5-20251001</anthropic_model>
+            </embedding>
+            <llm>
+                <llm_provider>openai</llm_provider>
+                <llm_openai_model>gpt-4o-mini</llm_openai_model>
+                <llm_bedrock_model>anthropic.claude-3-haiku-20240307-v1:0</llm_bedrock_model>
+                <llm_ollama_model>llama3</llm_ollama_model>
+                <llm_anthropic_model>claude-haiku-4-5-20251001</llm_anthropic_model>
+                <rag_max_context_docs>5</rag_max_context_docs>
+                <rag_prompt_template>You are a helpful shopping assistant. Based on the following product information, provide a brief and helpful recommendation for the search query "{{query}}".
+
+Products:
+{{context}}
+
+Provide a 2-3 sentence summary highlighting the most relevant products for this search.</rag_prompt_template>
+            </llm>
+        </rivicore_semantiq>
+    </default>
+</config>

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Indexer/etc/indexer.xsd">
+    <indexer id="rivicore_semantiq"
+             view_id="rivicore_semantiq"
+             class="Rivicore\SemantiQ\Model\Indexer\SemantiQIndexer">
+        <title translate="true">SemantiQ Vector Index</title>
+        <description translate="true">Rebuilds semantic vector embeddings for products and CMS pages</description>
+    </indexer>
+</config>

@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- ================================================================= -->
+    <!-- Interface preferences                                               -->
+    <!-- ================================================================= -->
+    <preference for="Rivicore\SemantiQ\Api\Data\VectorDocumentInterface"
+                type="Rivicore\SemantiQ\Model\Data\VectorDocument"/>
+
+    <preference for="Rivicore\SemantiQ\Api\Data\VectorSearchResultInterface"
+                type="Rivicore\SemantiQ\Model\Data\VectorSearchResult"/>
+
+    <!-- ================================================================= -->
+    <!-- Vector Store Pool                                                   -->
+    <!-- ================================================================= -->
+    <type name="Rivicore\SemantiQ\Model\VectorStore\Pool">
+        <arguments>
+            <argument name="adapters" xsi:type="array">
+                <item name="opensearch" xsi:type="object">Rivicore\SemantiQ\Model\VectorStore\OpenSearchAdapter</item>
+                <item name="chromadb"   xsi:type="object">Rivicore\SemantiQ\Model\VectorStore\ChromaDbAdapter</item>
+                <item name="bedrock_kb" xsi:type="object">Rivicore\SemantiQ\Model\VectorStore\BedrockKbAdapter</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- ================================================================= -->
+    <!-- Embedding Provider Pool                                             -->
+    <!-- ================================================================= -->
+    <type name="Rivicore\SemantiQ\Model\Embedding\Pool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="opensearch" xsi:type="object">Rivicore\SemantiQ\Model\Embedding\OpenSearchProvider</item>
+                <item name="openai"     xsi:type="object">Rivicore\SemantiQ\Model\Embedding\OpenAiProvider</item>
+                <item name="bedrock"    xsi:type="object">Rivicore\SemantiQ\Model\Embedding\BedrockProvider</item>
+                <item name="ollama"     xsi:type="object">Rivicore\SemantiQ\Model\Embedding\OllamaProvider</item>
+                <item name="anthropic"  xsi:type="object">Rivicore\SemantiQ\Model\Embedding\AnthropicProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- ================================================================= -->
+    <!-- LLM Provider Pool                                                   -->
+    <!-- ================================================================= -->
+    <type name="Rivicore\SemantiQ\Model\Llm\Pool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="openai"    xsi:type="object">Rivicore\SemantiQ\Model\Llm\OpenAiProvider</item>
+                <item name="bedrock"   xsi:type="object">Rivicore\SemantiQ\Model\Llm\BedrockProvider</item>
+                <item name="ollama"    xsi:type="object">Rivicore\SemantiQ\Model\Llm\OllamaProvider</item>
+                <item name="anthropic" xsi:type="object">Rivicore\SemantiQ\Model\Llm\AnthropicProvider</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- ================================================================= -->
+    <!-- Guzzle HTTP client shared by providers that use HTTP APIs           -->
+    <!-- ================================================================= -->
+    <virtualType name="Rivicore\SemantiQ\HttpClient" type="GuzzleHttp\Client">
+        <arguments>
+            <argument name="config" xsi:type="array">
+                <item name="timeout" xsi:type="number">30</item>
+                <item name="connect_timeout" xsi:type="number">5</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Rivicore\SemantiQ\Model\VectorStore\ChromaDbAdapter">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Rivicore\SemantiQ\HttpClient</argument>
+        </arguments>
+    </type>
+
+    <type name="Rivicore\SemantiQ\Model\Embedding\OpenAiProvider">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Rivicore\SemantiQ\HttpClient</argument>
+        </arguments>
+    </type>
+
+    <type name="Rivicore\SemantiQ\Model\Embedding\OllamaProvider">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Rivicore\SemantiQ\HttpClient</argument>
+        </arguments>
+    </type>
+
+    <type name="Rivicore\SemantiQ\Model\Embedding\AnthropicProvider">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Rivicore\SemantiQ\HttpClient</argument>
+        </arguments>
+    </type>
+
+    <type name="Rivicore\SemantiQ\Model\Llm\OpenAiProvider">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Rivicore\SemantiQ\HttpClient</argument>
+        </arguments>
+    </type>
+
+    <type name="Rivicore\SemantiQ\Model\Llm\OllamaProvider">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Rivicore\SemantiQ\HttpClient</argument>
+        </arguments>
+    </type>
+
+    <type name="Rivicore\SemantiQ\Model\Llm\AnthropicProvider">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Rivicore\SemantiQ\HttpClient</argument>
+        </arguments>
+    </type>
+
+    <!-- ================================================================= -->
+    <!-- SearchData plugin (suppress "Did you mean" when SemantiQ is active)  -->
+    <!-- ================================================================= -->
+    <type name="Magento\AdvancedSearch\Block\SearchData">
+        <plugin name="rivicore_semantiq_search_data"
+                type="Rivicore\SemantiQ\Plugin\SearchDataPlugin"
+                sortOrder="1"/>
+    </type>
+
+    <!-- ================================================================= -->
+    <!-- Fulltext collection plugin (suppress missing-bucket StateException)  -->
+    <!-- ================================================================= -->
+    <type name="Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection">
+        <plugin name="rivicore_semantiq_fulltext_collection"
+                type="Rivicore\SemantiQ\Plugin\FulltextCollectionPlugin"
+                sortOrder="1"/>
+    </type>
+
+    <!-- ================================================================= -->
+    <!-- Search Engine plugin (intercepts frontend search)                   -->
+    <!-- ================================================================= -->
+    <type name="Magento\Search\Model\SearchEngine">
+        <plugin name="rivicore_semantiq_search_engine"
+                type="Rivicore\SemantiQ\Plugin\SearchEnginePlugin"
+                sortOrder="1"/>
+    </type>
+
+    <!-- ================================================================= -->
+    <!-- Sensitive config path declarations                                  -->
+    <!-- ================================================================= -->
+    <type name="Magento\Config\Model\Config\TypePool">
+        <arguments>
+            <argument name="sensitive" xsi:type="array">
+                <item name="rivicore_semantiq/embedding/openai_api_key"       xsi:type="string">1</item>
+                <item name="rivicore_semantiq/embedding/bedrock_access_key"   xsi:type="string">1</item>
+                <item name="rivicore_semantiq/embedding/bedrock_secret_key"   xsi:type="string">1</item>
+                <item name="rivicore_semantiq/embedding/anthropic_api_key"    xsi:type="string">1</item>
+                <item name="rivicore_semantiq/vector_store/bedrock_kb_access_key" xsi:type="string">1</item>
+                <item name="rivicore_semantiq/vector_store/bedrock_kb_secret_key" xsi:type="string">1</item>
+                <item name="rivicore_semantiq/llm/llm_openai_api_key"         xsi:type="string">1</item>
+                <item name="rivicore_semantiq/llm/llm_bedrock_access_key"     xsi:type="string">1</item>
+                <item name="rivicore_semantiq/llm/llm_bedrock_secret_key"     xsi:type="string">1</item>
+                <item name="rivicore_semantiq/llm/llm_anthropic_api_key"      xsi:type="string">1</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>

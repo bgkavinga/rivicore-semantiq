@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="search-engine-optimization">
+        <field name="semantiq_exclude" sortOrder="200" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">product</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>string</dataType>
+                <label translate="true">Exclude from SemantiQ Index</label>
+                <dataScope>semantiq_exclude</dataScope>
+                <tooltip>
+                    <description translate="true">When set to Yes, this product will not be indexed by SemantiQ and will not appear in semantic search results.</description>
+                </tooltip>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Eav\Model\Entity\Attribute\Source\Boolean"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+    </fieldset>
+</form>

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+
+    <table name="rivicore_semantiq_index" resource="default" engine="innodb"
+           comment="SemantiQ Vector Index Log">
+        <column xsi:type="int" name="id" unsigned="true" nullable="false" identity="true"
+                comment="ID"/>
+        <column xsi:type="varchar" name="entity_type" length="32" nullable="false"
+                comment="Entity type: product or cms_page"/>
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false"
+                comment="Entity ID"/>
+        <column xsi:type="int" name="store_id" unsigned="true" nullable="false" default="0"
+                comment="Store ID"/>
+        <column xsi:type="varchar" name="vector_id" length="128" nullable="true"
+                comment="Document ID in the vector backend"/>
+        <column xsi:type="timestamp" name="indexed_at" nullable="false"
+                default="CURRENT_TIMESTAMP" on_update="true"
+                comment="Last indexed timestamp"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="RIVICORE_SEMANTIQ_INDEX_ENTITY">
+            <column name="entity_type"/>
+            <column name="entity_id"/>
+            <column name="store_id"/>
+        </constraint>
+        <index referenceId="RIVICORE_SEMANTIQ_INDEX_ENTITY_TYPE_ID" indexType="btree">
+            <column name="entity_type"/>
+            <column name="entity_id"/>
+        </index>
+    </table>
+
+    <table name="cms_page" resource="default" engine="innodb" comment="CMS Page Table">
+        <column xsi:type="smallint" name="semantiq_exclude" unsigned="true" nullable="false"
+                default="0" comment="Exclude from SemantiQ Vector Index"/>
+    </table>
+
+</schema>
