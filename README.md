@@ -6,6 +6,18 @@ When a shopper types "something warm for winter camping", SemantiQ finds sleepin
 
 ---
 
+## Screenshots
+
+### Search results — "carry things to the gym"
+
+![Search results for 'carry things to the gym'](screenshots/search-results-carry-things-to-gym.png)
+
+### Search results — "something for my daily commute"
+
+![Search results for 'something for my daily commute'](screenshots/search-results-daily-commute.png)
+
+---
+
 ## Table of Contents
 
 1. [Requirements](#requirements)
@@ -116,6 +128,8 @@ Navigate to **Stores → Configuration → Rivicore → SemantiQ Semantic Search
 
 ### General Settings
 
+![General Settings](screenshots/admin-general-settings.png)
+
 #### Enable SemantiQ
 - **Type**: Yes/No
 - **Default**: No
@@ -155,6 +169,8 @@ Navigate to **Stores → Configuration → Rivicore → SemantiQ Semantic Search
 ### Vector Store Backend
 
 The vector store holds the numeric embeddings and performs the k-nearest-neighbour (kNN) search at query time.
+
+![Vector Store Backend and Embedding Provider](screenshots/admin-vector-store-embedding-provider.png)
 
 Navigate to the **Vector Store Backend** group.
 
@@ -313,6 +329,8 @@ Navigate to the **Embedding Provider** group.
 ---
 
 ### LLM Provider (RAG)
+
+![LLM Provider (RAG)](screenshots/admin-llm-provider-rag.png)
 
 The LLM provider is only used when **Enable RAG** is set to **Yes**. It takes the top vector search results and the original query and produces a short contextual summary.
 
