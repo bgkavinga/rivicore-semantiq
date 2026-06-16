@@ -53,6 +53,21 @@ Optional (depending on chosen backend):
 
 ## Installation
 
+### Via Composer (recommended)
+
+```bash
+composer require rivicore/module-semantiq
+```
+
+If the package is not yet on Packagist, add the VCS repository first:
+
+```bash
+composer config repositories.rivicore-semantiq vcs https://github.com/bgkavinga/rivicore-semantiq
+composer require rivicore/module-semantiq
+```
+
+### Enable and set up
+
 ```bash
 # 1. Enable the module
 bin/magento module:enable Rivicore_SemantiQ
