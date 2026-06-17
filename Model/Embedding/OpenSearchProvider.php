@@ -115,17 +115,31 @@ class OpenSearchProvider implements EmbeddingProviderInterface
     private function getClient(): Client
     {
         if ($this->client === null) {
-            $options  = $this->esConfig->prepareClientOptions();
-            $hostname = preg_replace('/https?:\/\//i', '', (string) $options['hostname']);
-            $protocol = parse_url((string) $options['hostname'], PHP_URL_SCHEME) ?: 'http';
-            $port     = !empty($options['port']) ? ':' . $options['port'] : '';
+            $customHost = $this->semantiqConfig->getVectorOpenSearchHost();
 
-            $auth = '';
-            if (!empty($options['enableAuth']) && (int) $options['enableAuth'] === 1) {
-                $auth = $options['username'] . ':' . $options['password'] . '@';
+            if ($customHost !== '') {
+                $parsed   = parse_url($customHost);
+                $scheme   = $parsed['scheme'] ?? 'http';
+                $hostPart = $parsed['host'] ?? $customHost;
+                $portPart = isset($parsed['port']) ? ':' . $parsed['port'] : '';
+                $username = $this->semantiqConfig->getVectorOpenSearchUsername();
+                $password = $this->semantiqConfig->getVectorOpenSearchPassword();
+                $auth     = ($username !== '' && $password !== '')
+                    ? $username . ':' . $password . '@'
+                    : '';
+                $host = $scheme . '://' . $auth . $hostPart . $portPart;
+            } else {
+                $options  = $this->esConfig->prepareClientOptions();
+                $hostname = preg_replace('/https?:\/\//i', '', (string) $options['hostname']);
+                $protocol = parse_url((string) $options['hostname'], PHP_URL_SCHEME) ?: 'http';
+                $port     = !empty($options['port']) ? ':' . $options['port'] : '';
+                $auth     = '';
+                if (!empty($options['enableAuth']) && (int) $options['enableAuth'] === 1) {
+                    $auth = $options['username'] . ':' . $options['password'] . '@';
+                }
+                $host = $protocol . '://' . $auth . $hostname . $port;
             }
 
-            $host = $protocol . '://' . $auth . $hostname . $port;
             $this->client = ClientBuilder::fromConfig(['hosts' => [$host]], true);
         }
 

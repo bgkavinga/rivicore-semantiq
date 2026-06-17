@@ -385,12 +385,14 @@ For AWS OpenSearch Service, these settings are already configured.
 
 #### Step 2 — Register the model
 
-SemantiQ works with any text-embedding model that can be deployed via ML Commons. The recommended starting point is Hugging Face `sentence-transformers/all-MiniLM-L6-v2` (768 dimensions), which is pre-registered in OpenSearch's model registry.
+SemantiQ works with any text-embedding model that can be deployed via ML Commons. The full list of pre-built models supported by OpenSearch is available in the [OpenSearch pretrained model catalog](https://docs.opensearch.org/latest/ml-commons-plugin/pretrained-models/). Each entry in the catalog lists the model name, version, format, and — critically — its **embedding dimension**, which you must set in SemantiQ's **Embedding Dimension** field.
+
+The recommended starting point is Hugging Face `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions), which is pre-registered in OpenSearch's model registry.
 
 **Option A: Use the pre-built model registry (recommended)**
 
 ```bash
-# Register a pre-built sentence-transformers model
+# Register a pre-built sentence-transformers model (384 dimensions)
 POST /_plugins/_ml/models/_register
 {
   "name": "huggingface/sentence-transformers/all-MiniLM-L6-v2",
@@ -530,7 +532,16 @@ The response should contain an `inference_results` array with a `data` field of 
 
 - **Embedding Provider** → `OpenSearch ML Commons (built-in)`
 - **ML Model ID** → the `model_id` from step 2
-- **Embedding Dimension** → the dimension confirmed in step 4 (e.g. `768`)
+- **Embedding Dimension** → the dimension confirmed in step 4
+
+  Look up the exact value in the [OpenSearch pretrained model catalog](https://docs.opensearch.org/latest/ml-commons-plugin/pretrained-models/) or count the floats in the `data` array from the predict response. Common values: `384` (all-MiniLM-L6-v2, paraphrase-MiniLM), `768` (all-mpnet-base-v2, msmarco-distilbert), `1024` (BGE-large, multilingual-e5-large).
+
+  Set it via CLI to avoid cache issues:
+
+  ```bash
+  bin/magento config:set rivicore_semantiq/embedding/opensearch_ml_dimension <dimension>
+  bin/magento cache:flush
+  ```
 
 #### Finding an existing model ID
 
@@ -1068,15 +1079,46 @@ If `opensearch-knn` is missing, install it (self-hosted) or use AWS OpenSearch S
 
 ### Dimension mismatch error
 
-The **Embedding Dimension** config value does not match the model's actual output. Check the model's documentation or run a test predict call (see [OpenSearch ML Commons](#1-opensearch-ml-commons-built-in-embeddings) step 4). Drop the OpenSearch index and reindex:
+This error means the **Embedding Dimension** config value does not match the actual output of the deployed model. The log message looks like:
+
+```
+Vector dimension mismatch. Expected: 768, Given: 384
+```
+
+**Step 1 — Find the correct dimension**
+
+Check the [OpenSearch pretrained model catalog](https://docs.opensearch.org/latest/ml-commons-plugin/pretrained-models/) for the model you deployed. Alternatively, confirm the real dimension by running a test predict call against the deployed model and counting the floats in the response:
 
 ```bash
-# Drop the vector index
-curl -X DELETE http://localhost:9200/semantiq_vectors
+# local
+curl -X POST http://localhost:9200/_plugins/_ml/models/<model_id>/predict \
+  -H 'Content-Type: application/json' \
+  -d '{"text_docs": ["test"]}' \
+  | python3 -c "import sys,json; r=json.load(sys.stdin); print(len(r['inference_results'][0]['output'][0]['data']))"
 
-# Reindex
+# Docker Compose (service name: opensearch)
+curl -X POST http://opensearch:9200/_plugins/_ml/models/<model_id>/predict \
+  -H 'Content-Type: application/json' \
+  -d '{"text_docs": ["test"]}' \
+  | python3 -c "import sys,json; r=json.load(sys.stdin); print(len(r['inference_results'][0]['output'][0]['data']))"
+```
+
+**Step 2 — Update the config to match**
+
+```bash
+bin/magento config:set rivicore_semantiq/embedding/opensearch_ml_dimension <actual_dimension>
+bin/magento cache:flush
+```
+
+**Step 3 — Full reindex**
+
+The indexer detects the dimension change, automatically drops and recreates the OpenSearch index with the correct mapping, then re-embeds all documents:
+
+```bash
 bin/magento indexer:reindex rivicore_semantiq
 ```
+
+No manual index deletion is required — the indexer handles it.
 
 ### Switching embedding providers
 

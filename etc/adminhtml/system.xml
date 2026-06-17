@@ -80,6 +80,27 @@
                     <depends><field id="backend">opensearch</field></depends>
                 </field>
 
+                <field id="opensearch_host" translate="label" type="text" sortOrder="25"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>OpenSearch Host (Vector Store)</label>
+                    <depends><field id="backend">opensearch</field></depends>
+                    <comment>Full URL of a dedicated OpenSearch instance for vector storage, e.g. https://vector-os:9200. Leave blank to reuse Magento's catalog search connection.</comment>
+                </field>
+
+                <field id="opensearch_username" translate="label" type="text" sortOrder="26"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>OpenSearch Username</label>
+                    <depends><field id="backend">opensearch</field></depends>
+                    <comment>Leave blank if the dedicated instance requires no authentication.</comment>
+                </field>
+
+                <field id="opensearch_password" translate="label" type="obscure" sortOrder="27"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>OpenSearch Password</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <depends><field id="backend">opensearch</field></depends>
+                </field>
+
                 <!-- ChromaDB -->
                 <field id="chromadb_url" translate="label" type="text" sortOrder="30"
                        showInDefault="1" showInWebsite="0" showInStore="0">

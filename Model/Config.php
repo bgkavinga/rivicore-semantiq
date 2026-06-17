@@ -68,6 +68,21 @@ class Config
         return (string) ($this->value('vector_store/opensearch_index_name') ?: 'semantiq_vectors');
     }
 
+    public function getVectorOpenSearchHost(): string
+    {
+        return trim((string) $this->value('vector_store/opensearch_host'));
+    }
+
+    public function getVectorOpenSearchUsername(): string
+    {
+        return (string) $this->value('vector_store/opensearch_username');
+    }
+
+    public function getVectorOpenSearchPassword(): string
+    {
+        return (string) $this->value('vector_store/opensearch_password');
+    }
+
     public function getChromaDbUrl(): string
     {
         return (string) $this->value('vector_store/chromadb_url');
