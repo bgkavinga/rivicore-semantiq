@@ -58,6 +58,13 @@
                     <validate>validate-digits validate-greater-than-zero</validate>
                     <comment>Maximum number of products returned by a vector search query.</comment>
                 </field>
+
+                <field id="min_score" translate="label" type="text" sortOrder="70"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Minimum Similarity Score</label>
+                    <validate>validate-number</validate>
+                    <comment>Results below this cosine similarity score are discarded. Range 0.0–1.0. Set to 0 to disable. Typical ranges: exact synonym ≥ 0.80, intent query ≥ 0.70, weak match ≥ 0.60, unrelated &lt; 0.60.</comment>
+                </field>
             </group>
 
             <!-- ============================================================ -->

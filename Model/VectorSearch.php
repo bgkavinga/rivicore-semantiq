@@ -48,7 +48,13 @@ class VectorSearch
             ['entity_type' => 'product', 'store_id' => $storeId]
         );
 
-        // 3. Optional RAG — fire-and-forget; result dispatched as event for frontend block
+        // 3. Drop results below the configured similarity threshold
+        $minScore = $this->config->getMinScore();
+        if ($minScore > 0.0) {
+            $results = array_values(array_filter($results, fn($r) => $r->getScore() >= $minScore));
+        }
+
+        // 4. Optional RAG — fire-and-forget; result dispatched as event for frontend block
         if ($this->config->isRagEnabled() && !empty($results)) {
             try {
                 $ragContext = $this->llmPool->getProvider()->generateContext($queryText, $results);
@@ -62,7 +68,7 @@ class VectorSearch
             }
         }
 
-        // 4. Build Magento QueryResponse
+        // 5. Build Magento QueryResponse
         return $this->buildResponse($results);
     }
 

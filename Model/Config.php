@@ -44,7 +44,7 @@ class Config
     {
         $raw = $this->value('general/index_attributes', $scopeCode);
         if (!$raw) {
-            return ['name', 'description'];
+            return ['name', 'short_description', 'description'];
         }
         return array_filter(array_map('trim', explode(',', $raw)));
     }
@@ -52,6 +52,11 @@ class Config
     public function getSearchResultSize(?string $scopeCode = null): int
     {
         return (int) ($this->value('general/search_result_size', $scopeCode) ?: 20);
+    }
+
+    public function getMinScore(?string $scopeCode = null): float
+    {
+        return (float) ($this->value('general/min_score', $scopeCode) ?? 0.70);
     }
 
     // -------------------------------------------------------------------------
@@ -129,7 +134,7 @@ class Config
 
     public function getOpenSearchMlDimension(): int
     {
-        return (int) ($this->value('embedding/opensearch_ml_dimension') ?: 768);
+        return (int) ($this->value('embedding/opensearch_ml_dimension') ?: 384);
     }
 
     public function getOpenAiApiKey(): string
