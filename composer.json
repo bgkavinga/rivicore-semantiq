@@ -2,7 +2,8 @@
     "name": "rivicore/module-semantiq",
     "description": "Semantic vector search for Adobe Commerce",
     "type": "magento2-module",
-    "version": "2.0.1",
+    "version": "2.0.2",
+    "license": "MIT",
     "require": {
         "php": "~8.2.0||~8.3.0||~8.4.0",
         "magento/framework": "*",
