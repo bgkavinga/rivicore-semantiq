@@ -19,4 +19,6 @@ interface VectorDocumentInterface
 
     /** @return array<string, mixed> */
     public function getPayload(): array;
+
+    public function getTextContent(): string;
 }

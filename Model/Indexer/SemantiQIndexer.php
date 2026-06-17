@@ -127,7 +127,8 @@ class SemantiQIndexer implements ActionInterface, MviewActionInterface
                         entityId: $entityId,
                         storeId: $storeId,
                         vector: $vector,
-                        payload: $payloads[$entityId] ?? []
+                        payload: $payloads[$entityId] ?? [],
+                        textContent: $text
                     );
 
                     $this->vectorDocumentResource->upsert('product', $entityId, $storeId, $vectorId);
@@ -168,7 +169,8 @@ class SemantiQIndexer implements ActionInterface, MviewActionInterface
                         entityId: $entityId,
                         storeId: $storeId,
                         vector: $vector,
-                        payload: $payloads[$entityId] ?? []
+                        payload: $payloads[$entityId] ?? [],
+                        textContent: $text
                     );
 
                     $this->vectorDocumentResource->upsert('cms_page', $entityId, $storeId, $vectorId);

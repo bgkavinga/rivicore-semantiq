@@ -14,13 +14,15 @@ class VectorDocument implements VectorDocumentInterface
         private readonly int    $entityId,
         private readonly int    $storeId,
         private readonly array  $vector,
-        private readonly array  $payload = []
+        private readonly array  $payload = [],
+        private readonly string $textContent = ''
     ) {}
 
-    public function getId(): string       { return $this->id; }
-    public function getEntityType(): string { return $this->entityType; }
-    public function getEntityId(): int    { return $this->entityId; }
-    public function getStoreId(): int     { return $this->storeId; }
-    public function getVector(): array    { return $this->vector; }
-    public function getPayload(): array   { return $this->payload; }
+    public function getId(): string          { return $this->id; }
+    public function getEntityType(): string  { return $this->entityType; }
+    public function getEntityId(): int       { return $this->entityId; }
+    public function getStoreId(): int        { return $this->storeId; }
+    public function getVector(): array       { return $this->vector; }
+    public function getPayload(): array      { return $this->payload; }
+    public function getTextContent(): string { return $this->textContent; }
 }

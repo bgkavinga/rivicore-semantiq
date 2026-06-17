@@ -10,7 +10,9 @@
                 <rag_enabled>0</rag_enabled>
                 <index_attributes>name,short_description,description</index_attributes>
                 <search_result_size>20</search_result_size>
-                <min_score>0.70</min_score>
+                <min_score>0.855</min_score>
+                <hybrid_enabled>1</hybrid_enabled>
+                <hybrid_bm25_weight>0.3</hybrid_bm25_weight>
             </general>
             <vector_store>
                 <backend>opensearch</backend>
@@ -19,7 +21,7 @@
             </vector_store>
             <embedding>
                 <provider>openai</provider>
-                <opensearch_ml_dimension>384</opensearch_ml_dimension>
+                <opensearch_ml_dimension>768</opensearch_ml_dimension>
                 <openai_model>text-embedding-3-small</openai_model>
                 <bedrock_model>amazon.titan-embed-text-v2:0</bedrock_model>
                 <ollama_base_url>http://localhost:11434</ollama_base_url>

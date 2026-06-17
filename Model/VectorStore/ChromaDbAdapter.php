@@ -107,7 +107,7 @@ class ChromaDbAdapter implements VectorStoreInterface
         }
     }
 
-    public function search(array $queryVector, int $topK, array $filters = []): array
+    public function search(array $queryVector, int $topK, array $filters = [], string $queryText = ''): array
     {
         $url        = $this->config->getChromaDbUrl();
         $collection = $this->config->getChromaDbCollection();

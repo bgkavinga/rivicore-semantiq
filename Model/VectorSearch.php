@@ -41,11 +41,12 @@ class VectorSearch
         // 1. Embed the query
         $queryVector = $this->embeddingPool->getProvider()->embed($queryText);
 
-        // 2. Vector search — products only on the storefront
+        // 2. Hybrid (BM25 + vector) or pure-vector search — products only on the storefront
         $results = $this->vectorStorePool->getStore()->search(
             $queryVector,
             $topK,
-            ['entity_type' => 'product', 'store_id' => $storeId]
+            ['entity_type' => 'product', 'store_id' => $storeId],
+            $queryText
         );
 
         // 3. Drop results below the configured similarity threshold

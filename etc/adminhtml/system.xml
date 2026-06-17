@@ -65,6 +65,21 @@
                     <validate>validate-number</validate>
                     <comment>Results below this cosine similarity score are discarded. Range 0.0–1.0. Set to 0 to disable. Typical ranges: exact synonym ≥ 0.80, intent query ≥ 0.70, weak match ≥ 0.60, unrelated &lt; 0.60.</comment>
                 </field>
+
+                <field id="hybrid_enabled" translate="label" type="select" sortOrder="80"
+                       showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Enable Hybrid Search</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Adds BM25 keyword re-ranking on top of vector similarity (OpenSearch backend only). Results are scored by raw cosine similarity; keyword-matching results receive a small boost to improve precision without overriding semantic relevance.</comment>
+                </field>
+
+                <field id="hybrid_bm25_weight" translate="label" type="text" sortOrder="90"
+                       showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>BM25 Weight</label>
+                    <validate>validate-number</validate>
+                    <depends><field id="hybrid_enabled">1</field></depends>
+                    <comment>Controls how much BM25 keyword matching boosts result scores. Range 0.0–1.0; higher values give stronger re-ranking boost to keyword matches. Default 0.3 (max boost ≈ 0.02 on the cosine scale). Set to 0 to disable keyword re-ranking.</comment>
+                </field>
             </group>
 
             <!-- ============================================================ -->

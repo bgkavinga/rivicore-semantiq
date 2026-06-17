@@ -100,7 +100,7 @@ class BedrockKbAdapter implements VectorStoreInterface
         }
     }
 
-    public function search(array $queryVector, int $topK, array $filters = []): array
+    public function search(array $queryVector, int $topK, array $filters = [], string $queryText = ''): array
     {
         $client = $this->buildRuntimeClient();
         $kbId   = $this->config->getBedrockKbId();
@@ -108,7 +108,7 @@ class BedrockKbAdapter implements VectorStoreInterface
         // Bedrock KB Retrieve API performs the vector search internally
         $params = [
             'knowledgeBaseId'         => $kbId,
-            'retrievalQuery'          => ['text' => $filters['_query_text'] ?? ''],
+            'retrievalQuery'          => ['text' => $queryText],
             'retrievalConfiguration'  => [
                 'vectorSearchConfiguration' => [
                     'numberOfResults' => $topK,

@@ -59,6 +59,16 @@ class Config
         return (float) ($this->value('general/min_score', $scopeCode) ?? 0.70);
     }
 
+    public function isHybridEnabled(?string $scopeCode = null): bool
+    {
+        return $this->flag('general/hybrid_enabled', $scopeCode);
+    }
+
+    public function getHybridBm25Weight(?string $scopeCode = null): float
+    {
+        return (float) ($this->value('general/hybrid_bm25_weight', $scopeCode) ?? 0.3);
+    }
+
     // -------------------------------------------------------------------------
     // Vector Store
     // -------------------------------------------------------------------------

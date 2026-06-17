@@ -43,9 +43,10 @@ interface VectorStoreInterface
      *
      * @param float[]              $queryVector
      * @param int                  $topK
-     * @param array<string, mixed> $filters  e.g. ['entity_type' => 'product', 'store_id' => 1]
+     * @param array<string, mixed> $filters   e.g. ['entity_type' => 'product', 'store_id' => 1]
+     * @param string               $queryText Raw query string; used by adapters that support hybrid search.
      * @return VectorSearchResultInterface[]
      * @throws VectorStoreException
      */
-    public function search(array $queryVector, int $topK, array $filters = []): array;
+    public function search(array $queryVector, int $topK, array $filters = [], string $queryText = ''): array;
 }
