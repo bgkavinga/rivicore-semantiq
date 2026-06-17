@@ -26,6 +26,14 @@ class OpenSearchAdapter implements VectorStoreInterface
      */
     private const BM25_RERANK_FACTOR = 0.07;
 
+    /**
+     * How many extra kNN candidates to fetch in hybrid mode beyond the requested topK.
+     * BM25 keyword matches often land outside the bare top-K kNN results, so a wider
+     * candidate pool gives BM25 the opportunity to boost them into the final set.
+     * The extra candidates are filtered by min_score before the final topK is returned.
+     */
+    private const KNN_HYBRID_FETCH_MULTIPLIER = 3;
+
     private ?Client $client       = null;
     private ?bool   $knnAvailable = null;
     private ?string $baseUrl      = null;
@@ -234,8 +242,9 @@ class OpenSearchAdapter implements VectorStoreInterface
         array  $filters,
         string $queryText
     ): array {
-        // 1. kNN search — primary relevance, raw cosine scores preserved
-        $knnParams   = $this->buildKnnSearchParams($indexName, $queryVector, $topK, $filters);
+        // 1. kNN search — wider candidate pool so BM25 can boost products ranked just outside topK
+        $knnFetch  = $topK * self::KNN_HYBRID_FETCH_MULTIPLIER;
+        $knnParams = $this->buildKnnSearchParams($indexName, $queryVector, $knnFetch, $filters);
         try {
             $knnResponse = $this->getClient()->search($knnParams);
         } catch (\Throwable $e) {
