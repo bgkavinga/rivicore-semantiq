@@ -399,10 +399,26 @@ POST /_plugins/_ml/models/_register
 }
 ```
 
+```bash
+# curl equivalent
+curl -X POST http://localhost:9200/_plugins/_ml/models/_register \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "huggingface/sentence-transformers/all-MiniLM-L6-v2",
+    "version": "1.0.1",
+    "model_format": "TORCH_SCRIPT"
+  }'
+```
+
 The response contains a `task_id`. Check the task status:
 
 ```bash
 GET /_plugins/_ml/tasks/<task_id>
+```
+
+```bash
+# curl equivalent
+curl -X GET http://localhost:9200/_plugins/_ml/tasks/<task_id>
 ```
 
 When `state` is `COMPLETED`, the response includes the `model_id`. Copy this value — you will need it in the SemantiQ admin config.
@@ -425,16 +441,44 @@ POST /_plugins/_ml/models/_register
 }
 ```
 
+```bash
+# curl equivalent
+curl -X POST http://localhost:9200/_plugins/_ml/models/_register \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "my-custom-embedding-model",
+    "version": "1.0.0",
+    "model_format": "TORCH_SCRIPT",
+    "model_task_type": "TEXT_EMBEDDING",
+    "model_config": {
+      "model_type": "bert",
+      "embedding_dimension": 768,
+      "framework_type": "sentence_transformers"
+    },
+    "url": "https://your-server.com/model.zip"
+  }'
+```
+
 #### Step 3 — Deploy the model
 
 ```bash
 POST /_plugins/_ml/models/<model_id>/_deploy
 ```
 
+```bash
+# curl equivalent
+curl -X POST http://localhost:9200/_plugins/_ml/models/<model_id>/_deploy
+```
+
 Check deployment status:
 
 ```bash
 GET /_plugins/_ml/tasks/<deploy_task_id>
+```
+
+```bash
+# curl equivalent
+curl -X GET http://localhost:9200/_plugins/_ml/tasks/<deploy_task_id>
 ```
 
 Wait until `state` is `COMPLETED`.
@@ -446,6 +490,13 @@ POST /_plugins/_ml/models/<model_id>/predict
 {
   "text_docs": ["test product description"]
 }
+```
+
+```bash
+# curl equivalent
+curl -X POST http://localhost:9200/_plugins/_ml/models/<model_id>/predict \
+  -H 'Content-Type: application/json' \
+  -d '{"text_docs": ["test product description"]}'
 ```
 
 The response should contain an `inference_results` array with a `data` field of floats. Count the floats to confirm the embedding dimension.
@@ -466,6 +517,13 @@ GET /_plugins/_ml/models/_search
 }
 ```
 
+```bash
+# curl equivalent
+curl -X GET http://localhost:9200/_plugins/_ml/models/_search \
+  -H 'Content-Type: application/json' \
+  -d '{"query": {"match_all": {}}, "size": 20}'
+```
+
 Look for models with `"model_state": "DEPLOYED"`.
 
 ---
@@ -481,6 +539,11 @@ Verify the plugin is present:
 
 ```bash
 GET /_cat/plugins?v&h=name,component,version
+```
+
+```bash
+# curl equivalent
+curl -X GET 'http://localhost:9200/_cat/plugins?v&h=name,component,version'
 ```
 
 Look for a line containing `opensearch-knn`.
@@ -510,6 +573,11 @@ No manual index creation is needed. If the index already exists with a different
 
 ```bash
 DELETE /semantiq_vectors
+```
+
+```bash
+# curl equivalent
+curl -X DELETE http://localhost:9200/semantiq_vectors
 ```
 
 Then rerun the Magento indexer.
@@ -964,6 +1032,11 @@ The k-NN plugin is not installed or enabled. Verify:
 
 ```bash
 GET /_cat/plugins?v
+```
+
+```bash
+# curl equivalent
+curl -X GET 'http://localhost:9200/_cat/plugins?v'
 ```
 
 If `opensearch-knn` is missing, install it (self-hosted) or use AWS OpenSearch Service which includes it by default.
