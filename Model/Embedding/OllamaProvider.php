@@ -12,7 +12,6 @@ use Rivicore\SemantiQ\Model\Config;
 
 class OllamaProvider implements EmbeddingProviderInterface
 {
-    // Known dimensions for common Ollama embedding models
     private const DIMENSIONS = [
         'nomic-embed-text' => 768,
         'mxbai-embed-large' => 1024,
@@ -20,6 +19,8 @@ class OllamaProvider implements EmbeddingProviderInterface
         'bge-large'         => 1024,
         'bge-m3'            => 1024,
     ];
+
+    private ?int $detectedDimension = null;
 
     public function __construct(
         private readonly Config          $config,
@@ -50,6 +51,22 @@ class OllamaProvider implements EmbeddingProviderInterface
 
     public function getDimension(): int
     {
-        return self::DIMENSIONS[$this->config->getOllamaModel()] ?? 768;
+        $model = $this->config->getOllamaModel();
+
+        if (isset(self::DIMENSIONS[$model])) {
+            return self::DIMENSIONS[$model];
+        }
+
+        if ($this->detectedDimension === null) {
+            $vector = $this->embed('dimension probe');
+            if (empty($vector)) {
+                throw new EmbeddingException(
+                    new Phrase('SemantiQ: Cannot auto-detect embedding dimension for Ollama model "%1": empty vector returned.', [$model])
+                );
+            }
+            $this->detectedDimension = count($vector);
+        }
+
+        return $this->detectedDimension;
     }
 }

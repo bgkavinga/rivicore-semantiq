@@ -69,7 +69,7 @@ class BedrockProvider implements LlmProviderInterface
         foreach (array_slice($results, 0, $max) as $i => $r) {
             $payload = $r->getPayload();
             $name    = $payload['name'] ?? ('Product #' . $r->getEntityId());
-            $lines[] = sprintf('%d. %s', $i + 1, $name);
+            $lines[] = sprintf('%d. **%s**', $i + 1, $name);
         }
         return implode("\n", $lines);
     }

@@ -1,0 +1,16 @@
+<?php
+/** @var \Rivicore\SemantiQ\Block\Search\RagContext $block */
+$context = $block->getRagContext();
+if (!$context) {
+    return;
+}
+?>
+<div class="semantiq-ai-summary" role="region" aria-label="<?= $block->escapeHtmlAttr(__('AI Shopping Assistant')) ?>">
+    <div class="semantiq-ai-summary__header">
+        <svg class="semantiq-ai-summary__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+            <path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2Zm0 13a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM2 10a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5A.75.75 0 0 1 2 10Zm13 0a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5A.75.75 0 0 1 15 10ZM10 6.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/>
+        </svg>
+        <span class="semantiq-ai-summary__label"><?= $block->escapeHtml(__('AI Shopping Assistant')) ?></span>
+    </div>
+    <p class="semantiq-ai-summary__text"><?= preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', nl2br($block->escapeHtml($context))) /* @noEscape */ ?></p>
+</div>

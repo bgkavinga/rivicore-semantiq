@@ -52,6 +52,13 @@
                     <comment>Selected attribute values are concatenated and embedded. Defaults to name and description.</comment>
                 </field>
 
+                <field id="max_text_chars" translate="label" type="text" sortOrder="55"
+                       showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Max Text Length (chars)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>Text sent to the embedding model is truncated to this many characters. Lower values are safer for models with small context windows (e.g. 2000 for mxbai-embed-large). Increase for models with larger contexts (e.g. 8000 for nomic-embed-text).</comment>
+                </field>
+
                 <field id="search_result_size" translate="label" type="text" sortOrder="60"
                        showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
                     <label>Max Search Results</label>
@@ -107,20 +114,6 @@
                     <label>OpenSearch Host (Vector Store)</label>
                     <depends><field id="backend">opensearch</field></depends>
                     <comment>Full URL of a dedicated OpenSearch instance for vector storage, e.g. https://vector-os:9200. Leave blank to reuse Magento's catalog search connection.</comment>
-                </field>
-
-                <field id="opensearch_username" translate="label" type="text" sortOrder="26"
-                       showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>OpenSearch Username</label>
-                    <depends><field id="backend">opensearch</field></depends>
-                    <comment>Leave blank if the dedicated instance requires no authentication.</comment>
-                </field>
-
-                <field id="opensearch_password" translate="label" type="obscure" sortOrder="27"
-                       showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>OpenSearch Password</label>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
-                    <depends><field id="backend">opensearch</field></depends>
                 </field>
 
                 <!-- ChromaDB -->

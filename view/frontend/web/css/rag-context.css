@@ -1,0 +1,49 @@
+.semantiq-ai-summary {
+    background: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 100%);
+    border: 1px solid #c4b5fd;
+    border-left: 4px solid #7c3aed;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 0 0 24px;
+    box-shadow: 0 1px 4px rgba(124, 58, 237, 0.08);
+}
+
+.semantiq-ai-summary__header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+}
+
+.semantiq-ai-summary__icon {
+    width: 16px;
+    height: 16px;
+    color: #7c3aed;
+    flex-shrink: 0;
+}
+
+.semantiq-ai-summary__label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6d28d9;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+.semantiq-ai-summary__text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #1f2937;
+}
+
+@media (max-width: 767px) {
+    .semantiq-ai-summary {
+        padding: 12px 14px;
+        margin-bottom: 16px;
+    }
+
+    .semantiq-ai-summary__text {
+        font-size: 14px;
+    }
+}

@@ -55,7 +55,7 @@ class ProductTextBuilder
             }
             $text = preg_replace('/\s+/', ' ', trim(implode(' ', $parts)));
             if ($text !== '') {
-                $result[(int) $product->getId()] = $text;
+                $result[(int) $product->getId()] = mb_substr($text, 0, $this->config->getMaxTextChars());
             }
         }
 

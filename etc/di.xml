@@ -108,6 +108,15 @@
     </type>
 
     <!-- ================================================================= -->
+    <!-- Search result block plugin (prepend AI summary after search fires)   -->
+    <!-- ================================================================= -->
+    <type name="Magento\CatalogSearch\Block\Result">
+        <plugin name="rivicore_semantiq_search_result_rag"
+                type="Rivicore\SemantiQ\Plugin\SearchResultBlockPlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- ================================================================= -->
     <!-- SearchData plugin (suppress "Did you mean" when SemantiQ is active)  -->
     <!-- ================================================================= -->
     <type name="Magento\AdvancedSearch\Block\SearchData">

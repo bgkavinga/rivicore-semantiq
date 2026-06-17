@@ -49,6 +49,11 @@ class Config
         return array_filter(array_map('trim', explode(',', $raw)));
     }
 
+    public function getMaxTextChars(?string $scopeCode = null): int
+    {
+        return (int) ($this->value('general/max_text_chars', $scopeCode) ?: 2000);
+    }
+
     public function getSearchResultSize(?string $scopeCode = null): int
     {
         return (int) ($this->value('general/search_result_size', $scopeCode) ?: 20);

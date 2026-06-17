@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Rivicore_SemantiQ::css/rag-context.css"/>
+    </head>
+    <body>
+        <referenceBlock name="search.result">
+            <block class="Rivicore\SemantiQ\Block\Search\RagContext"
+                   name="semantiq.rag.context"
+                   template="Rivicore_SemantiQ::search/rag_context.phtml"
+                   cacheable="false"/>
+        </referenceBlock>
+    </body>
+</page>

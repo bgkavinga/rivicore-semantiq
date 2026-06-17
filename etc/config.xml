@@ -9,6 +9,7 @@
                 <index_cms_pages>1</index_cms_pages>
                 <rag_enabled>0</rag_enabled>
                 <index_attributes>name,short_description,description</index_attributes>
+                <max_text_chars>2000</max_text_chars>
                 <search_result_size>20</search_result_size>
                 <min_score>0.855</min_score>
                 <hybrid_enabled>1</hybrid_enabled>
@@ -40,7 +41,7 @@
 Products:
 {{context}}
 
-Provide a 2-3 sentence summary highlighting the most relevant products for this search.</rag_prompt_template>
+Provide a 2-3 sentence summary highlighting the most relevant products for this search. Always bold product names using **Product Name** markdown formatting when referring to them.</rag_prompt_template>
             </llm>
         </rivicore_semantiq>
     </default>

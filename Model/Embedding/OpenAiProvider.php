@@ -20,6 +20,8 @@ class OpenAiProvider implements EmbeddingProviderInterface
         'text-embedding-ada-002' => 1536,
     ];
 
+    private ?int $detectedDimension = null;
+
     public function __construct(
         private readonly Config          $config,
         private readonly ClientInterface $httpClient
@@ -57,6 +59,22 @@ class OpenAiProvider implements EmbeddingProviderInterface
 
     public function getDimension(): int
     {
-        return self::DIMENSIONS[$this->config->getOpenAiModel()] ?? 1536;
+        $model = $this->config->getOpenAiModel();
+
+        if (isset(self::DIMENSIONS[$model])) {
+            return self::DIMENSIONS[$model];
+        }
+
+        if ($this->detectedDimension === null) {
+            $vector = $this->embed('dimension probe');
+            if (empty($vector)) {
+                throw new EmbeddingException(
+                    new Phrase('SemantiQ: Cannot auto-detect embedding dimension for OpenAI model "%1": empty vector returned.', [$model])
+                );
+            }
+            $this->detectedDimension = count($vector);
+        }
+
+        return $this->detectedDimension;
     }
 }

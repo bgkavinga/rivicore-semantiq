@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Rivicore\SemantiQ\Model\TextBuilder;
 
 use Magento\Cms\Model\ResourceModel\Page\CollectionFactory;
+use Rivicore\SemantiQ\Model\Config;
 
 class CmsPageTextBuilder
 {
     public function __construct(
-        private readonly CollectionFactory $collectionFactory
+        private readonly CollectionFactory $collectionFactory,
+        private readonly Config            $config
     ) {}
 
     /**
@@ -38,7 +40,7 @@ class CmsPageTextBuilder
 
             $text = preg_replace('/\s+/', ' ', trim(implode(' ', $parts)));
             if ($text !== '') {
-                $result[(int) $page->getId()] = $text;
+                $result[(int) $page->getId()] = mb_substr($text, 0, $this->config->getMaxTextChars());
             }
         }
 

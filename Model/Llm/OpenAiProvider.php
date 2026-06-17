@@ -60,7 +60,7 @@ class OpenAiProvider implements LlmProviderInterface
             $payload = $r->getPayload();
             $name    = $payload['name'] ?? ('Product #' . $r->getEntityId());
             $desc    = $payload['description'] ?? '';
-            $lines[] = sprintf('%d. %s%s', $i + 1, $name, $desc ? ': ' . substr(strip_tags($desc), 0, 200) : '');
+            $lines[] = sprintf('%d. **%s**%s', $i + 1, $name, $desc ? ': ' . substr(strip_tags($desc), 0, 200) : '');
         }
         return implode("\n", $lines);
     }

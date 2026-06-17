@@ -46,8 +46,12 @@ class OllamaProvider implements LlmProviderInterface
         $lines = [];
         $max   = $this->config->getRagMaxContextDocs();
         foreach (array_slice($results, 0, $max) as $i => $r) {
-            $payload = $r->getPayload();
-            $lines[] = sprintf('%d. %s', $i + 1, $payload['name'] ?? ('Item #' . $r->getEntityId()));
+            $payload     = $r->getPayload();
+            $name        = $payload['name'] ?? ('Item #' . $r->getEntityId());
+            $description = $payload['description'] ?? '';
+            $lines[]     = $description !== ''
+                ? sprintf('%d. **%s**: %s', $i + 1, $name, $description)
+                : sprintf('%d. **%s**', $i + 1, $name);
         }
         return implode("\n", $lines);
     }

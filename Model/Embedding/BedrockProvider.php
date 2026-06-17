@@ -18,6 +18,8 @@ class BedrockProvider implements EmbeddingProviderInterface
         'cohere.embed-multilingual-v3'  => 1024,
     ];
 
+    private ?int $detectedDimension = null;
+
     public function __construct(
         private readonly Config $config
     ) {}
@@ -68,6 +70,22 @@ class BedrockProvider implements EmbeddingProviderInterface
 
     public function getDimension(): int
     {
-        return self::DIMENSIONS[$this->config->getBedrockEmbedModel()] ?? 1024;
+        $model = $this->config->getBedrockEmbedModel();
+
+        if (isset(self::DIMENSIONS[$model])) {
+            return self::DIMENSIONS[$model];
+        }
+
+        if ($this->detectedDimension === null) {
+            $vector = $this->embed('dimension probe');
+            if (empty($vector)) {
+                throw new EmbeddingException(
+                    new Phrase('SemantiQ: Cannot auto-detect embedding dimension for Bedrock model "%1": empty vector returned.', [$model])
+                );
+            }
+            $this->detectedDimension = count($vector);
+        }
+
+        return $this->detectedDimension;
     }
 }
