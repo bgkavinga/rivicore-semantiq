@@ -31,7 +31,17 @@ class OpenSearchAdapter implements VectorStoreInterface
         $indexName = $this->semantiqConfig->getOpenSearchIndexName();
 
         if ($client->indices()->exists(['index' => $indexName])) {
-            return;
+            $mapping     = $client->indices()->getMapping(['index' => $indexName]);
+            $existingDim = $mapping[$indexName]['mappings']['properties']['vector']['dimension']
+                ?? $mapping[$indexName]['mappings']['properties']['vector']['dims']
+                ?? null;
+
+            if ($existingDim === null || (int) $existingDim === $dimension) {
+                return;
+            }
+
+            // Dimension changed (e.g. embedding model swapped) — drop and recreate.
+            $client->indices()->delete(['index' => $indexName]);
         }
 
         if ($this->isKnnPluginAvailable()) {

@@ -466,8 +466,11 @@ POST /_plugins/_ml/models/<model_id>/_deploy
 ```
 
 ```bash
-# curl equivalent
+# curl equivalent (local / bare-metal)
 curl -X POST http://localhost:9200/_plugins/_ml/models/<model_id>/_deploy
+
+# Docker Compose (service name: opensearch)
+curl -X POST http://opensearch:9200/_plugins/_ml/models/<model_id>/_deploy
 ```
 
 Check deployment status:
@@ -477,11 +480,28 @@ GET /_plugins/_ml/tasks/<deploy_task_id>
 ```
 
 ```bash
-# curl equivalent
+# curl equivalent (local / bare-metal)
 curl -X GET http://localhost:9200/_plugins/_ml/tasks/<deploy_task_id>
+
+# Docker Compose
+curl -X GET http://opensearch:9200/_plugins/_ml/tasks/<deploy_task_id>
 ```
 
 Wait until `state` is `COMPLETED`.
+
+> **Tip — list all models and their deploy status at any time:**
+> ```bash
+> # local
+> curl -X GET http://localhost:9200/_plugins/_ml/models/_search \
+>   -H 'Content-Type: application/json' \
+>   -d '{"query": {"match_all": {}}, "size": 20}'
+>
+> # Docker Compose
+> curl -X GET http://opensearch:9200/_plugins/_ml/models/_search \
+>   -H 'Content-Type: application/json' \
+>   -d '{"query": {"match_all": {}}, "size": 20}'
+> ```
+> Look for `"model_state": "DEPLOYED"` in the response.
 
 #### Step 4 — Verify the model is working
 
@@ -493,8 +513,13 @@ POST /_plugins/_ml/models/<model_id>/predict
 ```
 
 ```bash
-# curl equivalent
+# curl equivalent (local / bare-metal)
 curl -X POST http://localhost:9200/_plugins/_ml/models/<model_id>/predict \
+  -H 'Content-Type: application/json' \
+  -d '{"text_docs": ["test product description"]}'
+
+# Docker Compose
+curl -X POST http://opensearch:9200/_plugins/_ml/models/<model_id>/predict \
   -H 'Content-Type: application/json' \
   -d '{"text_docs": ["test product description"]}'
 ```
