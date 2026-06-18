@@ -31,12 +31,15 @@ class OllamaProvider implements LlmProviderInterface
                 'json' => [
                     'model'    => $model,
                     'stream'   => false,
-                    'messages' => [['role' => 'user', 'content' => $prompt]],
+                    'messages' => [
+                        ['role' => 'user',      'content' => $prompt],
+                        ['role' => 'assistant', 'content' => '<div>'],
+                    ],
                 ],
             ]);
 
             $body = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
-            return trim($body['message']['content'] ?? '');
+            return '<div>' . trim($body['message']['content'] ?? '');
         } catch (\Throwable $e) {
             $this->logger->error('SemantiQ OllamaProvider error: ' . $e->getMessage(), ['exception' => $e]);
             return '';
@@ -46,16 +49,33 @@ class OllamaProvider implements LlmProviderInterface
     /** @param VectorSearchResultInterface[] $results */
     private function buildContext(array $results): string
     {
-        $lines = [];
-        $max   = $this->config->getRagMaxContextDocs();
-        foreach (array_slice($results, 0, $max) as $i => $r) {
+        $lines    = [];
+        $max      = $this->config->getRagMaxContextDocs();
+        $slice    = array_slice($results, 0, $max);
+        $storeUrl = $this->config->getStoreBaseUrl(!empty($slice) ? $slice[0]->getStoreId() : 0);
+
+        foreach ($slice as $i => $r) {
             $payload     = $r->getPayload();
             $name        = $payload['name'] ?? ('Item #' . $r->getEntityId());
             $description = $payload['description'] ?? '';
-            $lines[]     = $description !== ''
+            $urlKey      = $payload['url_key'] ?? '';
+
+            $line = $description !== ''
                 ? sprintf('%d. **%s**: %s', $i + 1, $name, $description)
                 : sprintf('%d. **%s**', $i + 1, $name);
+            if ($urlKey) {
+                $line .= "\n   URL: " . $storeUrl . $urlKey . '.html';
+            }
+            $lines[] = $line;
         }
+
+        if (!empty($lines)) {
+            array_unshift(
+                $lines,
+                "Instructions: Respond with an HTML fragment only — no markdown, no ```html fences, no <html>/<body> tags. Use <ul><li> for lists, <strong> for product names, and <a href=\"URL\"> for product links so the user can open them directly. Each product below has a precomposed URL ready to use.\n"
+            );
+        }
+
         return implode("\n", $lines);
     }
 }

@@ -38,7 +38,7 @@ class BedrockProvider implements LlmProviderInterface
         $prompt  = str_replace(['{{query}}', '{{context}}'], [$query, $context], $template);
 
          $payload = [
-                'messages'       => [['role' => 'user', 'content' => [['text' => $prompt]]]],
+                'messages'       => [['role' => 'user', 'content' => [['text' => $prompt]]],['role' => 'assistant', 'content' => [['text' => '<div>']]]],
                 'inferenceConfig' => ['maxTokens' => 512],
         ];
 
@@ -52,7 +52,7 @@ class BedrockProvider implements LlmProviderInterface
 
             $body = json_decode((string) $result['body'], true, 512, JSON_THROW_ON_ERROR);
 
-            return trim($body['output']['message']['content'][0]['text'] ?? '');
+            return '<div>' . trim($body['output']['message']['content'][0]['text'] ?? '');
         } catch (\Throwable $e) {
             $this->logger->error('BedrockProvider::generateContext failed: ' . $e->getMessage(), ['exception' => $e]);
             return '';
@@ -62,13 +62,34 @@ class BedrockProvider implements LlmProviderInterface
     /** @param VectorSearchResultInterface[] $results */
     private function buildContext(array $results): string
     {
-        $lines = [];
-        $max   = $this->config->getRagMaxContextDocs();
-        foreach (array_slice($results, 0, $max) as $i => $r) {
-            $payload = $r->getPayload();
-            $name    = $payload['name'] ?? ('Product #' . $r->getEntityId());
-            $lines[] = sprintf('%d. **%s**', $i + 1, $name);
+        $max      = $this->config->getRagMaxContextDocs();
+        $slice    = array_slice($results, 0, $max);
+        $storeUrl = $this->config->getStoreBaseUrl(!empty($slice) ? $slice[0]->getStoreId() : 0);
+
+        $products = [];
+        foreach ($slice as $r) {
+            $payload     = $r->getPayload();
+            $urlKey      = $payload['url_key'] ?? '';
+            $description = $payload['description'] ?? ($payload['short_description'] ?? '');
+
+            $product = [
+                'entity_id'   => $r->getEntityId(),
+                'name'        => $payload['name'] ?? ('Product #' . $r->getEntityId()),
+                'url'         => $urlKey ? $storeUrl . $urlKey . '.html' : null,
+                'description' => $description ? strip_tags($description) : null,
+                'sku'         => $payload['sku'] ?? null,
+                'price'       => $payload['price'] ?? null,
+            ];
+
+            foreach (['url', 'description', 'sku', 'price'] as $optional) {
+                if ($product[$optional] === null) {
+                    unset($product[$optional]);
+                }
+            }
+
+            $products[] = $product;
         }
-        return implode("\n", $lines);
+
+        return json_encode($products, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 }

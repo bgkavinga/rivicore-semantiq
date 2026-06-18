@@ -268,6 +268,13 @@ class Config
         return (string) $this->value('llm/rag_prompt_template');
     }
 
+    public function getStoreBaseUrl(int $storeId = 0): string
+    {
+        $scope = $storeId > 0 ? ScopeInterface::SCOPE_STORE : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+        $url   = (string) $this->scopeConfig->getValue('web/unsecure/base_url', $scope, $storeId ?: null);
+        return $url ? rtrim($url, '/') . '/' : '';
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------

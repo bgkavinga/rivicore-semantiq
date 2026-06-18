@@ -12,5 +12,5 @@ if (!$context) {
         </svg>
         <span class="semantiq-ai-summary__label"><?= $block->escapeHtml(__('AI Shopping Assistant')) ?></span>
     </div>
-    <p class="semantiq-ai-summary__text"><?= preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', nl2br($block->escapeHtml($context))) /* @noEscape */ ?></p>
+    <div class="semantiq-ai-summary__text"><?= $context /* @noEscape */ ?></div>
 </div>

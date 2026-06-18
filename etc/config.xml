@@ -36,12 +36,13 @@
                 <llm_ollama_model>llama3</llm_ollama_model>
                 <llm_anthropic_model>claude-haiku-4-5-20251001</llm_anthropic_model>
                 <rag_max_context_docs>5</rag_max_context_docs>
-                <rag_prompt_template>You are a helpful shopping assistant. Based on the following product information, provide a brief and helpful recommendation for the search query "{{query}}".
-
-Products:
-{{context}}
-
-Provide a 2-3 sentence summary highlighting the most relevant products for this search. Always bold product names using **Product Name** markdown formatting when referring to them.</rag_prompt_template>
+                <rag_prompt_template>#You are a helpful shopping assistant. Based on the following product information, provide a brief and helpful recommendation for the search query "{{query}}".
+##Products:
+```{{context}}```
+**Provide a 2-3 sentence summary highlighting the most relevant products for this search.**
+## Instructions
+- Generate the response in HTML format.
+</rag_prompt_template>
             </llm>
         </rivicore_semantiq>
     </default>

@@ -41,12 +41,15 @@ class AnthropicProvider implements LlmProviderInterface
                 'json' => [
                     'model'      => $model,
                     'max_tokens' => 512,
-                    'messages'   => [['role' => 'user', 'content' => $prompt]],
+                    'messages'   => [
+                        ['role' => 'user',      'content' => $prompt],
+                        ['role' => 'assistant', 'content' => '<div>'],
+                    ],
                 ],
             ]);
 
             $body = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
-            return trim($body['content'][0]['text'] ?? '');
+            return '<div>' . trim($body['content'][0]['text'] ?? '');
         } catch (\Throwable) {
             return '';
         }
@@ -55,14 +58,31 @@ class AnthropicProvider implements LlmProviderInterface
     /** @param VectorSearchResultInterface[] $results */
     private function buildContext(array $results): string
     {
-        $lines = [];
-        $max   = $this->config->getRagMaxContextDocs();
-        foreach (array_slice($results, 0, $max) as $i => $r) {
+        $lines    = [];
+        $max      = $this->config->getRagMaxContextDocs();
+        $slice    = array_slice($results, 0, $max);
+        $storeUrl = $this->config->getStoreBaseUrl(!empty($slice) ? $slice[0]->getStoreId() : 0);
+
+        foreach ($slice as $i => $r) {
             $payload = $r->getPayload();
             $name    = $payload['name'] ?? ('Product #' . $r->getEntityId());
             $desc    = $payload['description'] ?? '';
-            $lines[] = sprintf('%d. **%s**%s', $i + 1, $name, $desc ? ': ' . substr(strip_tags($desc), 0, 200) : '');
+            $urlKey  = $payload['url_key'] ?? '';
+
+            $line = sprintf('%d. **%s**%s', $i + 1, $name, $desc ? ': ' . substr(strip_tags($desc), 0, 200) : '');
+            if ($urlKey) {
+                $line .= "\n   URL: " . $storeUrl . $urlKey . '.html';
+            }
+            $lines[] = $line;
         }
+
+        if (!empty($lines)) {
+            array_unshift(
+                $lines,
+                "Instructions: Respond with an HTML fragment only. Use <ul><li> for lists, <strong> for product names, and <a href=\"URL\"> for product links so the user can open them directly. Each product below has a precomposed URL ready to use.\n"
+            );
+        }
+
         return implode("\n", $lines);
     }
 }
