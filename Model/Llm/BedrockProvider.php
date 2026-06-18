@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rivicore\SemantiQ\Model\Llm;
 
 use Magento\Framework\Phrase;
+use Psr\Log\LoggerInterface;
 use Rivicore\SemantiQ\Api\Data\VectorSearchResultInterface;
 use Rivicore\SemantiQ\Api\LlmProviderInterface;
 use Rivicore\SemantiQ\Model\Config;
@@ -12,7 +13,8 @@ use Rivicore\SemantiQ\Model\Config;
 class BedrockProvider implements LlmProviderInterface
 {
     public function __construct(
-        private readonly Config $config
+        private readonly Config $config,
+        private readonly LoggerInterface $logger
     ) {}
 
     public function generateContext(string $query, array $results): string
@@ -21,26 +23,24 @@ class BedrockProvider implements LlmProviderInterface
             return '';
         }
 
-        $model = $this->config->getLlmBedrockModel();
-        $sdk   = new \Aws\Sdk([
-            'region'      => $this->config->getLlmBedrockRegion(),
-            'version'     => 'latest',
-            'credentials' => [
-                'key'    => $this->config->getLlmBedrockAccessKey(),
-                'secret' => $this->config->getLlmBedrockSecretKey(),
-            ],
-        ]);
+        $model  = $this->config->getLlmBedrockModel();
+        $region = $this->config->getLlmBedrockRegion();
+        $apiKey = $this->config->getLlmBedrockApiKey();
 
-        $client  = $sdk->createBedrockRuntime();
+        $client = new \Aws\BedrockRuntime\BedrockRuntimeClient([
+            'region'                 => $region,
+            'version'                => 'latest',
+            'token'                  => \Aws\Token\BedrockTokenProvider::fromTokenValue($apiKey),
+            'auth_scheme_preference' => [\Aws\Token\BedrockTokenProvider::BEARER_AUTH],
+        ]);
         $context = $this->buildContext($results);
         $template = $this->config->getRagPromptTemplate();
         $prompt  = str_replace(['{{query}}', '{{context}}'], [$query, $context], $template);
 
-        // Anthropic-on-Bedrock message format
-        $isAnthropic = str_contains($model, 'anthropic');
-        $payload = $isAnthropic
-            ? ['anthropic_version' => 'bedrock-2023-05-31', 'max_tokens' => 512, 'messages' => [['role' => 'user', 'content' => $prompt]]]
-            : ['prompt' => "\n\nHuman: {$prompt}\n\nAssistant:", 'max_tokens_to_sample' => 512];
+         $payload = [
+                'messages'       => [['role' => 'user', 'content' => [['text' => $prompt]]]],
+                'inferenceConfig' => ['maxTokens' => 512],
+        ];
 
         try {
             $result = $client->invokeModel([
@@ -52,11 +52,9 @@ class BedrockProvider implements LlmProviderInterface
 
             $body = json_decode((string) $result['body'], true, 512, JSON_THROW_ON_ERROR);
 
-            if ($isAnthropic) {
-                return trim($body['content'][0]['text'] ?? '');
-            }
-            return trim($body['completion'] ?? '');
-        } catch (\Throwable) {
+            return trim($body['output']['message']['content'][0]['text'] ?? '');
+        } catch (\Throwable $e) {
+            $this->logger->error('BedrockProvider::generateContext failed: ' . $e->getMessage(), ['exception' => $e]);
             return '';
         }
     }

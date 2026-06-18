@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rivicore\SemantiQ\Model\Llm;
 
 use GuzzleHttp\ClientInterface;
+use Psr\Log\LoggerInterface;
 use Rivicore\SemantiQ\Api\Data\VectorSearchResultInterface;
 use Rivicore\SemantiQ\Api\LlmProviderInterface;
 use Rivicore\SemantiQ\Model\Config;
@@ -12,8 +13,9 @@ use Rivicore\SemantiQ\Model\Config;
 class OllamaProvider implements LlmProviderInterface
 {
     public function __construct(
-        private readonly Config          $config,
-        private readonly ClientInterface $httpClient
+        private readonly Config           $config,
+        private readonly ClientInterface  $httpClient,
+        private readonly LoggerInterface  $logger
     ) {}
 
     public function generateContext(string $query, array $results): string
@@ -35,7 +37,8 @@ class OllamaProvider implements LlmProviderInterface
 
             $body = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
             return trim($body['message']['content'] ?? '');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            $this->logger->error('SemantiQ OllamaProvider error: ' . $e->getMessage(), ['exception' => $e]);
             return '';
         }
     }

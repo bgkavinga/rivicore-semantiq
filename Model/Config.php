@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rivicore\SemantiQ\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Store\Model\ScopeInterface;
 
 class Config
@@ -12,7 +13,8 @@ class Config
     private const XML_PREFIX = 'rivicore_semantiq/';
 
     public function __construct(
-        private readonly ScopeConfigInterface $scopeConfig
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly EncryptorInterface $encryptor
     ) {}
 
     // -------------------------------------------------------------------------
@@ -125,12 +127,12 @@ class Config
 
     public function getBedrockKbAccessKey(): string
     {
-        return (string) $this->value('vector_store/bedrock_kb_access_key');
+        return $this->secret('vector_store/bedrock_kb_access_key');
     }
 
     public function getBedrockKbSecretKey(): string
     {
-        return (string) $this->value('vector_store/bedrock_kb_secret_key');
+        return $this->secret('vector_store/bedrock_kb_secret_key');
     }
 
     // -------------------------------------------------------------------------
@@ -154,7 +156,7 @@ class Config
 
     public function getOpenAiApiKey(): string
     {
-        return (string) $this->value('embedding/openai_api_key');
+        return $this->secret('embedding/openai_api_key');
     }
 
     public function getOpenAiModel(): string
@@ -174,12 +176,12 @@ class Config
 
     public function getBedrockEmbedAccessKey(): string
     {
-        return (string) $this->value('embedding/bedrock_access_key');
+        return $this->secret('embedding/bedrock_access_key');
     }
 
     public function getBedrockEmbedSecretKey(): string
     {
-        return (string) $this->value('embedding/bedrock_secret_key');
+        return $this->secret('embedding/bedrock_secret_key');
     }
 
     public function getOllamaBaseUrl(): string
@@ -194,7 +196,7 @@ class Config
 
     public function getAnthropicApiKey(): string
     {
-        return (string) $this->value('embedding/anthropic_api_key');
+        return $this->secret('embedding/anthropic_api_key');
     }
 
     public function getAnthropicModel(): string
@@ -213,7 +215,7 @@ class Config
 
     public function getLlmOpenAiApiKey(): string
     {
-        return (string) $this->value('llm/llm_openai_api_key');
+        return $this->secret('llm/llm_openai_api_key');
     }
 
     public function getLlmOpenAiModel(): string
@@ -231,14 +233,9 @@ class Config
         return (string) ($this->value('llm/llm_bedrock_model') ?: 'anthropic.claude-3-haiku-20240307-v1:0');
     }
 
-    public function getLlmBedrockAccessKey(): string
+    public function getLlmBedrockApiKey(): string
     {
-        return (string) $this->value('llm/llm_bedrock_access_key');
-    }
-
-    public function getLlmBedrockSecretKey(): string
-    {
-        return (string) $this->value('llm/llm_bedrock_secret_key');
+        return $this->secret('llm/llm_bedrock_api_key');
     }
 
     public function getLlmOllamaBaseUrl(): string
@@ -253,7 +250,7 @@ class Config
 
     public function getLlmAnthropicApiKey(): string
     {
-        return (string) $this->value('llm/llm_anthropic_api_key');
+        return $this->secret('llm/llm_anthropic_api_key');
     }
 
     public function getLlmAnthropicModel(): string
@@ -279,6 +276,11 @@ class Config
     {
         $scope = $scopeCode ? ScopeInterface::SCOPE_STORE : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
         return $this->scopeConfig->getValue(self::XML_PREFIX . $path, $scope, $scopeCode);
+    }
+
+    private function secret(string $path, ?string $scopeCode = null): string
+    {
+        return (string) $this->encryptor->decrypt($this->value($path, $scopeCode));
     }
 
     private function flag(string $path, ?string $scopeCode = null): bool
